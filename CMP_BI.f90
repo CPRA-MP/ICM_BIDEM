@@ -1,5 +1,5 @@
 !======================================================
-!      2023 Coastal Master Plan Barrier Island Model (CMP_BI)
+!      2023 Coastal Master Plan Barrier Island Model (BI-DEM)
 !               Version 1.0
 !              main program
 !           By Water Institute of the Gulf
@@ -10,15 +10,6 @@
 ! GLOBAL
 ! INPUT_UTIL
 !
-! Subroutine used:
-!
-! read_input
-! allocate_variables
-! check_subaerial
-! check_island
-! land_subsidence
-! update_shoreline
-! write_output
 !-------------------------------------------------------
 
 !Note: in some cases 2017 BIMODE code was commented out and not deleted
@@ -73,8 +64,7 @@
         call check_subaerial
         call check_island
 
-!-----------------Cross-shore Retreat  -------------
-		
+		!SLR modulation of cross-shore retreat		
 		if (slrm_on.eq.1) then
 			!SLR modulation
 			k = 2
@@ -118,6 +108,7 @@
 		print*,' SLR multiplier equal to ',slrm_fac
 		write(3,*)' SLR multiplier equal to ',slrm_fac
 
+		!Cross shore retreat
 		if (rtrt_on.eq.1) then
 			call cross_shore_retreat
 			call check_subaerial
@@ -126,6 +117,7 @@
 			write(3,*) ' Finished cross-shore retreat ... '
 		end if
 			
+		!Bayside retreat	
 		if (brtrt_on.eq.1) then
 			call bayside_retreat        
 			call check_subaerial
@@ -133,10 +125,20 @@
 			print*,' Finished bayside retreat ... '
 			write(3,*) ' Finished bayside retreat ... '
 		end if
+		
+
+!		open(unit=30,file='data.txt',status="replace")
+!		i = 1
+!		do j=1,rec_len2(i)
+!		    write(30,*) ranges(j,i),elev(j,i)
+!		end do
+!		close (30)
+!		call execute_command_line('gnuplot -p plot.plt')
 
 !-- sea level rise only change water levels
         call sea_level_rise
 		print *,' Finished SLR. New MHW is ',lev_mhw
+		write(3,*) 'Finished SLR. New MHW is ',lev_mhw
 		
         if (sub_on.eq.1) then
 			call land_subsidence
@@ -145,6 +147,19 @@
 			call check_subaerial
 			call check_island
 		end if
+		
+		!Marsh accretion
+		if (mrsh_on.eq.1) then
+		   !For now use the current MHW and subsidence rate to calculate
+			call marsh_accretion
+			call check_subaerial
+			call check_island
+			old_mhw = lev_mhw
+			
+			print*,' Finished marsh accretion ... '
+			write(3,*) ' Finished marsh accretion ... '
+		end if
+		
 !-----------------Auto-restoration  -------------
         
 		if (rst_on.eq.1) then
@@ -162,7 +177,7 @@
 !---------output at time interval----------
 ! For ICM, CMP_BI prints out data at the end of each year
 ! plot_intv is no longer used for ICM.
-!
+!		
         plot_count = plot_count + time_step
 
         if (plot_count.gt.plot_intv) then
@@ -180,7 +195,9 @@
 !--------------end output------------------
 		print *,' '
         print*, ' Calculation time is ',time, ' Days '
+		print*, ' Simulation time is ',simu_time+time, 'Days '
         write(3,*) ' Calculation time is ',time, ' Days '
+		write(3,*) ' Simulation time is ',simu_time+time, 'Days'
 		
          time = time + time_step
     end do
@@ -235,6 +252,10 @@
 ! 7. Restoration unit delineations and types
 ! 8. Prescribed restoration templates
 ! 9. File giving the approximate longshore spacing of each point in each profile
+! 10. Marsh edge boundary files
+! 11. SLR modulation file
+! 12. SLR rate file
+! 13. Marsh water level adjustment file
 !!---------------------------------------------------------
     use global
     use input_util
@@ -250,11 +271,6 @@
     real(sp):: tp0,tp_temp,sl_tp
     integer :: yre,moe,dae,hre,mine
     real(sp):: tpe
-
-!    integer :: yr_st,mo_st,da_st,count_st
-!    integer :: yr_proj,mo_proj,proj_count,storm_count
-!    character(len=30) :: nm_proj
-!    character(len=80) :: fnm_proj
     integer,parameter :: max_len = 30e6
     real(sp)  :: x_s(max_len),y_s(max_len),dx_s,dy_s,uni_vecx,uni_vecy
     real(sp)  :: z_s(max_len)
@@ -266,6 +282,7 @@
     character(len=30) :: file_name
     character(len=4) :: file_name2
     logical  :: here
+	logical  :: existLog
     integer  :: i,j,k,ierr,line,nprof2
     integer  :: I1,I2,I3,I4,slide_width
 
@@ -292,12 +309,14 @@
 
     real(sp) :: interp1_nearest
 
- ! create log.txt file
-
-    open(unit=3,file='running_log.txt')
-	
-! create the restoration log file
-	open(unit=4,file='restore_record.txt')
+ ! create log.txt file; overwrite previous with each run
+	open(unit=3,file="running_log.txt")
+!	inquire(file="running_log.txt",exist=existLog)
+!	if (existLog) then
+!		open(unit=3,file="running_log.txt",status="old",position="append",action="write")
+!	else
+!		open(unit=3,file="running_log.txt",status="new",action="write")
+!	end if
 
  !---------------read from 'input.txt'----------------------
 
@@ -343,6 +362,17 @@
 
     CALL GET_FLOAT_VAL(SIMU_TIME,FILE_NAME,'SIMU_TIME',line)
     CALL GET_FLOAT_VAL(SLR_CUMU,FILE_NAME,'SLR_CUMU',line)
+	CALL GET_FLOAT_VAL(OLD_MHW,FILE_NAME,'OLD_MHW',line)
+
+	inquire(file="restore_record.txt",exist=existLog)
+	! create the restoration log file; append to previous for run continuation
+	if (NEW_SIMU.AND.existLog) then
+		open(unit=4,file="restore_record.txt",status="replace",action="write")
+	elseif (NEW_SIMU) then
+		open(unit=4,file="restore_record.txt",status="new",action="write")
+	else
+		open(unit=4,file="restore_record.txt",status="old",position="append",action="write")
+	end if
 
 
     print*, ' NEW_SIMU = ', NEW_SIMU
@@ -350,6 +380,7 @@
 
     print*, ' SIMU_TIME = ', SIMU_TIME
     print*, ' SLR_CUMU  = ', SLR_CUMU
+
 
 
     write(3,*) ' NEW_SIMU = ', NEW_SIMU
@@ -363,8 +394,10 @@
 
      print*,' CMP_BI starts a new simulation ... '
      print*,' Cumulative computing time SIMU_TIME returns to zero ... '
+	 print*,' Old MHW value will be set to value in reference file ... '
      write(3,*) ' CMP_BI starts a new simulation ... '
      write(3,*) ' Cumulative computing time SIMU_TIME returns to zero ... '
+	 write(3,*) 'Old MHW value will be set to value in reference file ... '
 
 
    ! just to make sure these values are correct
@@ -375,10 +408,11 @@
 
      print*,' CMP_BI continues with a previous simulation ... '
      print*,' Cumulative computing time from previous runs is ', simu_time
-
+	 print*, 'OLD_MHW = ', old_mhw
+	
      write(3,*) ' CMP_BI continues with a previous simulation ... '
      write(3,*) ' Cumulative computing time from previous runs is ', simu_time
-
+	 write(3,*) ' OLD_MHW = ', old_mhw
     endif
 
 
@@ -623,7 +657,31 @@
    write(3,*) ' nhead_xyzp = ', nhead_xyzp
    write(3,*) ' nhead_ctrl = ', nhead_ctrl
    
+    !-----------Marsh accretion ----
+   CALL GET_STRING_VAL(FILE_BI,FILE_NAME,'FILE_BI',line,ierr)
+   CALL GET_STRING_VAL(FILE_WL,FILE_NAME,'FILE_WL',line,ierr)
+   CALL GET_INTEGER_VAL(nhead_bi,FILE_NAME,'nhead_bi',line)
+   CALL GET_INTEGER_VAL(nhead_wl,FILE_NAME,'nhead_wl',line)
+   CALL GET_INTEGER_VAL(mrsh_on,FILE_NAME,'mrsh_on',line)
    
+    if (mrsh_on.eq.0) then
+		print*, '********* Marsh accretion OFF **********'
+		write(3,*) '******** Marsh accretion OFF **********'
+	else
+		mrsh_on = 1
+		print*, 'Marsh accretion on'
+		write(3,*) 'Marsh accretion on'
+		
+		print*, ' FILE_BI  = ', FILE_BI
+		print*, ' nhead_bi = ', nhead_bi
+		print*, ' FILE_WL  = ', FILE_WL
+		print*, ' nhead_wl = ', nhead_wl
+
+		write(3,*) ' FILE_BI  = ', FILE_BI
+		write(3,*) ' nhead_bi = ', nhead_bi
+		write(3,*) ' FILE_WL  = ', FILE_WL
+		write(3,*) ' nhead_wl = ', nhead_wl
+   end if
 !----------------Gulfside cross-shore retreat rates -------------- 
    CALL GET_STRING_VAL(FILE_RTRT,FILE_NAME,'FILE_RTRT',line,ierr)
    CALL GET_INTEGER_VAL(nhead_rtrt,FILE_NAME,'nhead_rtrt',line)
@@ -747,14 +805,9 @@
 
    CALL GET_INTEGER_VAL(region_id,FILE_NAME,'REGION_ID',line)
 
-!   CALL GET_STRING_VAL(FILE_TPRSM,FILE_NAME,'FILE_TPRSM',line,ierr)
-!   CALL GET_INTEGER_VAL(nhead_tprsm,FILE_NAME,'nhead_tprsm',line)
-
    CALL GET_STRING_VAL(FILE_MHW,FILE_NAME,'FILE_MHW',line,ierr)
    CALL GET_INTEGER_VAL(nhead_mhw,FILE_NAME,'nhead_mhw',line)
 
-!   CALL GET_STRING_VAL(FILE_BRETR,FILE_NAME,'FILE_BRETR',line,ierr)
-!   CALL GET_INTEGER_VAL(nhead_bretr,FILE_NAME,'nhead_bretr',line)
 
    if (region_id.lt.1.or.region_id.gt.6)then
        print*, '  '
@@ -776,23 +829,11 @@
    print*, ' REGION_ID = ', region_id
    write(3,*) ' REGION_ID  = ', region_id
 
-!   print*, ' FILE_TPRSM  = ', FILE_TPRSM
-!   print*, ' nhead_tprsm = ', nhead_tprsm
-
    print*, ' FILE_MHW  = ', FILE_MHW
    print*, ' nhead_mhw = ', nhead_mhw
 
-!   print*, ' FILE_BRETR  = ', FILE_BRETR
-!   print*, ' nhead_bretr = ', nhead_bretr
-
-!   write(3,*) ' FILE_TPRSM  = ', FILE_TPRSM
-!   write(3,*) ' nhead_tprsm = ', nhead_tprsm
-
    write(3,*) ' FILE_MHW  = ', FILE_MHW
    write(3,*) ' nhead_mhw = ', nhead_mhw
-
-!   write(3,*) ' FILE_BRETR  = ', FILE_BRETR
-!   write(3,*) ' nhead_bretr = ', nhead_bretr
 
 
   !--------------Subsidence--------------------
@@ -1158,9 +1199,9 @@
 
     if (NEW_SIMU) then
     do i=1,nprof
-        !do j=1,rec_len2(i)-slide_width
-        !    elev(j+NINT(slide_width/2.0)-1,i) = SUM(elev(j:j+slide_width-1,i))/slide_width
-        !enddo
+        do j=1,rec_len2(i)-slide_width
+            elev(j+NINT(slide_width/2.0)-1,i) = SUM(elev(j:j+slide_width-1,i))/slide_width
+        enddo
         call sliding_average(elev(1:rec_len2(i),i),rec_len2(i),slide_width,elev(1:rec_len2(i),i))
     enddo
     endif
@@ -1249,6 +1290,133 @@
   	print*, ' Dx written to grid'
 	write(3,*) ' Dx written to grid'
 	
+!-----------------------------------------------------------
+!--------- read marsh edge file for accretion --------------
+!-----------------------------------------------------------
+	
+	
+	if (NEW_SIMU) then
+
+     print*, ' For new simulation, CMP_BI reads BI edge file in input folder ... '
+     write(3,*) ' For new simulation, CMP_BI reads BI edge file in input folder ... '
+
+   else
+
+     print*, ' For continued simulation, CMP_BI reads BI edge file from previous run in results folder ...  '
+     write(3,*) ' For continued simulation, CMP_BI reads BI edge file from previous run in results folder ...  '
+
+     file_bi = TRIM(result_folder)//'BI_edge_'//TRIM(file_name2)
+
+     print*, ' Now the updated BI edge file name is ',file_bi
+     write(3,*) ' Now the updated BI edge file name is ',file_bi
+
+
+   endif
+
+
+  if(.NOT.Check_Exist(trim(file_bi))) call exist_error(file_bi)
+  print*,' Reading barrier island edge file ',file_bi,' ... '
+
+   write(3,*) '    '
+   write(3,*) ' ---------------barrier island edge file ------------- '
+   write(3,*) ' Reading barrier island edge file ',TRIM(file_bi),' ... '
+
+   
+   ! nprog_g is to count number of profiles
+
+   nprof_g=1
+   
+   allocate(mrsh_acrt(nprof))
+    mrsh_acrt = zero
+	 
+   allocate(bi_edge(nprof))
+	bi_edge = zero
+  
+   rp_s = zero
+   
+    open(10,file=TRIM(file_bi))
+
+    ! skip headlines
+        if (nhead_bi.ge.1) then
+            do i=1,nhead_bi
+                read(10,*,end=110,err=110)
+            enddo
+        endif
+	!rp_s = profile_id
+	
+    ! read data
+        do k=1,max_len
+            read(10,*,end=110,err=110) rp_s(k),bi_edge(k)
+
+			 if (k.ge.2) then
+                if (rp_s(k).ne.rp_s(k-1))then
+                nprof_g = nprof_g+1
+                endif
+            endif
+        enddo
+110 close(10)
+
+
+  do k = 1,nprof
+       if (rp_s(k).ne.profile_id(k)) then
+	        print*,' Profile mismatch in barrier island edge file ..., please check '
+			print*,' Profile ID in grid is ', profile_id(k)
+			print*,' Profile ID in file is ', rp_s(k)
+			write(3,*)' Profile mismatch in barrier island edge file ..., please check '
+			write(3,*)' Profile ID in grid is ', profile_id(k)
+			write(3,*)' Profile ID in file is ', rp_s(k)
+			print*,' Press any key to EXIT the program ... '
+			read*,
+			stop
+		endif
+	   
+  enddo
+
+
+   !Check that the number of island grouping profiles is equal to the number of grid profiles
+   if (nprof_g.ne.nprof) then
+        print*,' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
+        write(3,*)' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
+        print*,' Press any key to EXIT the program ... '
+        read*,
+        stop
+    endif
+	
+	!------ Read marsh water level/threshold offset info--------
+
+   if(.NOT.Check_Exist(trim(file_wl))) call exist_error(file_wl)
+
+   print*,' Reading marsh threshold water level file ... '
+   write(3,*) ' Reading marsh threshold water level file ... '
+
+    open(10,file=TRIM(file_wl))
+
+      ! skip head lines
+       if (nhead_wl.ge.1) then
+        do i=1,nhead_wl
+          read(10,*,end=109,err=109)
+        enddo
+       endif
+
+      ! skip region_id
+       if (region_id.gt.1) then
+        do i=1,region_id-1
+          read(10,*,end=109,err=109)
+        enddo
+       endif
+ 
+       read(10,*,end=109,err=109) mhw_msl,mrsh_thrsh
+	   
+
+109 close(10)
+    print*, ' MHW - MSL = ',mhw_msl,'mrsh_thrsh = ',mrsh_thrsh
+    write(3,*) ' MHW - MSL = ',mhw_msl,'mrsh_thrsh = ',mrsh_thrsh
+	
+	!If this is a new simulation, assume that the reference water level for the marsh is this value
+	
+	if (NEW_SIMU) then
+		old_mhw = lev_mhw
+	end if
 
  !-----------------------------------------------------------
   !--------- read cross-shore retreat file--------------------
@@ -1403,15 +1571,7 @@
 		endif	
 			
 		rtr_msh(i) = rr_s(prof_offset+i)
-!		print *,'i = ',i,'prof_offset = ',prof_offset
-!		print*,'profile = ',profile_id(i),'rtr_msh = ',rtr_msh(i)
-
        enddo
-
-!       print*,' Read data records ', nprof
-!       read*,rr
-
-
 
      print*,' Retreat bayside rate read for profiles ', profile_id(1),' to ',profile_id(nprof)
      write(3,*) ' Retreat bayside rate read for profiles ', profile_id(1),' to ',profile_id(nprof)
@@ -1419,8 +1579,10 @@
  !-----------------------------------------------------------
   !--------- read auto-restoration template--------------------
   !-----------------------------------------------------------
-!Assume time-invariant
-		if (rst_on.eq.1) then
+!Assume time invariant
+if (rst_on.eq.1) then
+     
+   
    if(.NOT.Check_Exist(trim(file_tmpl))) call exist_error(file_tmpl)
    
    print*, '    '
@@ -1505,14 +1667,33 @@
  !-----------------------------------------------------------
   !--------- read auto-restoration groupings--------------------
   !-----------------------------------------------------------
-!Assume time-invariant
+!Headland restoration location changes with time
+
+ if (NEW_SIMU) then
+
+     print*, ' For new simulation, CMP_BI reads restore info file in input folder ... '
+     write(3,*) ' For new simulation, CMP_BI reads restore info file in input folder ... '
+
+   else
+
+     print*, ' For continued simulation, CMP_BI reads restore info file from previous run in results folder ...  '
+     write(3,*) ' For continued simulation, CMP_BI reads restore info file from previous run in results folder ...  '
+
+     file_grp = TRIM(result_folder)//'Restore_info_'//TRIM(file_name2)
+
+     print*, ' Now the updated restore info file name is ',file_grp
+     write(3,*) ' Now the updated restore info file name is ',file_grp
+
+
+   endif
+
 
   if(.NOT.Check_Exist(trim(file_grp))) call exist_error(file_grp)
   print*,' Reading auto-restoration grouping file ',file_grp,' ... '
 
    write(3,*) '    '
    write(3,*) ' ---------------auto-restoration grouping file ------------- '
-   write(3,*) ' Reading auto-restoration grouping file ',TRIM(file_tmpl),' ... '
+   write(3,*) ' Reading auto-restoration grouping file ',TRIM(file_grp),' ... '
 
    
    ! ngrp is to count number of data record
@@ -1524,8 +1705,11 @@
    allocate(prof_rst_grp(nprof))
    allocate(prof_type(nprof))
    allocate(rng_hd_dune(nprof))
+   allocate(dune_walkback(nprof))
+   
      prof_type = zero
   rng_hd_dune = zero
+  dune_walkback = zero
   
    rp_s = zero
    prof_rst_grp = zero
@@ -1547,7 +1731,7 @@
 	!rd_s = range of the threshold for headlands
     ! read data
         do k=1,max_len
-            read(10,*,end=105,err=105) rp_s(k),prof_rst_grp(k),y_s(k),prof_type(k),rng_hd_dune(k)
+            read(10,*,end=105,err=105) rp_s(k),prof_rst_grp(k),prof_type(k),rng_hd_dune(k),dune_walkback(k)
             ngrp = ngrp+1
 			 if (k.ge.2) then
                 if (rp_s(k).ne.rp_s(k-1))then
@@ -1575,9 +1759,9 @@
 			stop
 		endif
 		
-		
-	   if (y_s(k).ne.zero) then
-             grp_length(prof_rst_grp(k))=y_s(k)
+	   if (prof_rst_grp(k).ne.zero) then
+             !grp_length(prof_rst_grp(k))=y_s(k)
+			 grp_length(prof_rst_grp(k)) = grp_length(prof_rst_grp(k)) + 1
 	   endif
 	   
   enddo
@@ -1644,6 +1828,12 @@ endif
 111 close(10)
     print*, ' MHW from EcoHydro Model = ',lev_mhw
     write(3,*) ' MHW from EcoHydro Model = ',lev_mhw
+	
+	!If this is a new simulation, assume that the reference water level for the marsh is this value
+	
+	if (NEW_SIMU) then
+		old_mhw = lev_mhw
+	end if
 	
 	!------ Read SLR modulation file--------
 
@@ -2103,55 +2293,43 @@ end subroutine
    ! the furthest point that is land will not be considered in calculation
 
      if (elev(rec_len2(i),i).ge.zero) cycle
-
-   ! find the landside zero-contour
-
-     do j=2,rec_len2(i)
-
-    ! zero contour is where the sign changes
-    ! mean sea level is always lev_mhw
-
-       a = (elev(j-1,i)-lev_mhw)*(elev(j,i)-lev_mhw)
-
-    ! IF x0 is underwater, then this location is island
-    ! IF x0 is land, then this location is just under water
-
-        if (a.le.zero.and.elev(j-1,i).lt.lev_mhw) then
-          loc_north(i) = j
-        ! find which point is closer to zero
-          if (ABS(elev(j-1,i)-lev_mhw).lt.ABS(elev(j,i)-lev_mhw)) loc_north(i)=j-1
-          exit
-        endif
-
-     enddo
-
-   ! find the seaside zero-contour
-
+	 
+	! find the seaside zero-contour
 
      do j=rec_len2(i),2,-1
        a = (elev(j-1,i)-lev_mhw)*(elev(j,i)-lev_mhw)
        if (a.le.zero) then
           loc_sea(i) = j-1
         ! find which is closer to zero
-          if (ABS(elev(j,i)-lev_mhw).lt.ABS(elev(j-1,i)-lev_mhw)) loc_sea(i)=j
+		!Remove this logic so loc_sea is land
+          !if (ABS(elev(j,i)-lev_mhw).lt.ABS(elev(j-1,i)-lev_mhw)) loc_sea(i)=j
+		  !if (elev(j,i).gt.lev_mhw) loc_sea(i)=j
           exit
        endif
      enddo
-		
-	max_high = 0	
-	! Find the island max location
-		do j = loc_north(i),loc_sea(i) !Only evaluate the subaerial island	- find the current high point
-			if (elev(j,i).ge.max_high) then
-				in_max_island(i) = j
-				max_high = elev(j,i)
-			end if
-		end do
 
-    ! check whether they are the same point
-    ! same point will not be considered as island
-    ! for land case, the loc_north is always zero
-    ! to find island, have to make sure loc_north is not zero
-    ! it is impossible that loc_sea is less than loc_north
+   ! find the landside zero-contour
+
+     !do j=2,rec_len2(i)
+	 
+	 !Move from the offshore location inland
+	 do j=loc_sea(i),2,-1
+
+    ! zero contour is where the sign changes
+    ! mean sea level is always lev_mhw
+
+       a = (elev(j-1,i)-lev_mhw)*(elev(j,i)-lev_mhw)
+
+
+!        if (a.le.zero.and.elev(j-1,i).lt.lev_mhw) then
+		if (a.le.zero) then
+          loc_north(i) = j
+        ! find which point is closer to zero
+   !       if (ABS(elev(j-1,i)-lev_mhw).lt.ABS(elev(j,i)-lev_mhw)) loc_north(i)=j-1
+          exit
+        endif
+
+     enddo
 
      if (loc_north(i).lt.loc_sea(i).and.loc_north(i).ne.zero) then
         island(i)=1
@@ -2160,8 +2338,10 @@ end subroutine
       ! The board team suggests using mean high water to measure the island width
 
         island_width(i)=ABS(ranges(loc_sea(i),i)-ranges(loc_north(i),i))
+			
 
      endif
+		
 
    endif
   enddo
@@ -2491,8 +2671,8 @@ subroutine cross_shore_retreat
 !		elev(rec_len2(i)+1,i) = orig_out_elev(i)
 !		rec_len2(i) = rec_len2(i) + 1
 		ranges(rec_len2(i),i) = orig_max_range(i)
-		print *,' Profile ID = ',profile_id(i),' extended from ', temp, ' to ',ranges(rec_len2(i),i)
-		write(3,*) ' Profile ID = ',profile_id(i),' extended from ', temp, ' to ',ranges(rec_len2(i),i)
+!		print *,' Profile ID = ',profile_id(i),' extended from ', temp, ' to ',ranges(rec_len2(i),i)
+!		write(3,*) ' Profile ID = ',profile_id(i),' extended from ', temp, ' to ',ranges(rec_len2(i),i)
 
 	end if
 	
@@ -2508,6 +2688,38 @@ subroutine cross_shore_retreat
   enddo !Profile loop
    
 end subroutine cross_shore_retreat
+
+subroutine marsh_accretion
+
+	use global
+	implicit none
+	
+	integer :: i,j
+	
+	print*, ' lev_mhw = ',lev_mhw
+	print*, 'old_mhw = ',old_mhw
+	
+	do i=1,nprof
+		!First determine the amount of accretion
+		!For now constant everywhere, but allow for variable in longshore
+		
+		mrsh_acrt(i) = lev_mhw - old_mhw
+		
+		if (sub_on.eq.1) then
+			mrsh_acrt(i) = mrsh_acrt(i) + (sub_rate/365.25*dt)
+		end if	
+		
+		!Leeward of the BI edge boundary AND
+		!was above water level before it was adjusted
+		!Add back in what was lost to subsidence
+		do j=rec_len2(i),2,-1
+			if ((ranges(j,i).lt.bi_edge(i)).AND.((elev(j,i)+(sub_rate/365.25*dt)).gt.(old_mhw-mhw_msl-mrsh_thrsh))) then
+				elev(j,i) = elev(j,i) + mrsh_acrt(i)
+			endif
+		enddo	
+		
+	end do
+end subroutine marsh_accretion
 
 subroutine auto_restoration
 
@@ -2527,6 +2739,7 @@ subroutine auto_restoration
   real(sp) :: place_sum !Sum of placed area per profile
   real(sp) :: interp1_nearest !Interpolation
   real(sp) :: diff_to_range ! used to identify what dx to use from vector of dx values
+  real(sp) :: dy_pt ! Calculate dy for the volume placed calculation
   
   !Find the restoration unit profiles that exceed the threshold
   !Use an exceedance (benchmark "good" profiles) to trap newly subaerial profiles as well as island profiles
@@ -2583,10 +2796,11 @@ subroutine auto_restoration
 			in_high = zero !Reset
 			max_high = zero
 			diff_z = zero
-!Unit is an island, residual island is present, and profile is associated with this island group
+			
+			!Unit is an island, residual island is present, and profile is associated with this island group
 			if ((island(i).eq.1).AND.(prof_rst_grp(i).eq.n).AND.(prof_type(i).eq.1)) then 
-				do j = loc_north(i),loc_sea(i) !Only evaluate the subaerial island	- find the current high point
-					if (elev(j,i).ge.max_high) then
+				do j = loc_north(i),loc_sea(i) !Only evaluate the subaerial island	- find the current high point with some tolerance for machine error
+					if (elev(j,i).ge.(max_high)) then
 						in_high = j
 						max_high = elev(j,i)
 					end if
@@ -2595,7 +2809,6 @@ subroutine auto_restoration
 				max_y = ranges(in_high,i)
 				diff_y = max_y - tmpl_y(tmpl_max_in(i),i) !How far, in m, the restoration template should be shifted to align peak-to-peak
 				
-
 
 				restore_y1(1:tmpl_max_len(i),i) = tmpl_y(1:tmpl_max_len(i),i)+diff_y !y-values shifted to the island profile
 				
@@ -2606,6 +2819,14 @@ subroutine auto_restoration
 				do j=1,rec_len2(i)
 					restore_z1(j,i) = interp1_nearest(restore_y1(1:tmpl_max_len(i),i),tmpl_z(1:tmpl_max_len(i),i), &
 					tmpl_max_len(i),ranges(j,i))
+				end do
+
+				!Identify where the restoration template crosses water -> update marsh edge
+				do j = 1,rec_len2(i)
+					if (restore_z1(j,i).gt.0) then
+						bi_edge(i) = ranges(j,i)
+						exit
+					end if
 				end do
 
 				!Add MHW to the template to keep up with eustatic SLR. Subsidence is handled due to grid z sinking
@@ -2630,7 +2851,17 @@ subroutine auto_restoration
 							end if
 						end do
 						
-						place_sum = place_sum+(dx_vals(min_diff_pt,i)*dy*diff_z(j,i))
+						!Determine dy at this point in the profile
+						if (j.eq.1) then
+							dy_pt = abs(ranges(j+1,i)-ranges(j,i))
+						elseif (j.eq.rec_len2(i)) then
+							dy_pt = abs(ranges(j,i)-ranges(j-1,i))
+						else
+							dy_pt = abs(ranges(j,i)-ranges(j-1,i))/2+abs(ranges(j+1,i)-ranges(j,i))/2
+						end if
+						
+						place_sum = place_sum+(dx_vals(min_diff_pt,i)*dy_pt*diff_z(j,i))
+						
 					end if
 				end do	!End cross-shore locations
 				
@@ -2639,7 +2870,7 @@ subroutine auto_restoration
 					rest_time(rest_count(i),i) = time
 					rest_vol_added(rest_count(i),i) = place_sum
 					
-					write(4,*) time,n,profile_id(i),rest_vol_added(rest_count(i),i)
+					write(4,*) simu_time+time,n,profile_id(i),rest_vol_added(rest_count(i),i)
 				end if
 			!Island unit, profile in the unit, but no residual island
 			elseif ((island(i).eq.0).AND.(prof_rst_grp(i).eq.n).AND.(prof_type(i).eq.1)) then 
@@ -2666,6 +2897,14 @@ subroutine auto_restoration
 					tmpl_max_len(i),ranges(j,i))
 				end do
 
+				!Identify where the restoration template crosses water -> update marsh edge
+				do j = 1,rec_len2(i)
+					if (restore_z1(j,i).gt.0) then
+						bi_edge(i) = ranges(j,i)
+						exit
+					end if
+				end do
+
 				!Add MHW to the template to keep up with eustatic SLR. Subsidence is handled due to grid z sinking
 				diff_z(1:rec_len2(i),i) = restore_z1(1:rec_len2(i),i)-elev(1:rec_len2(i),i)+lev_mhw
 
@@ -2688,7 +2927,17 @@ subroutine auto_restoration
 							end if
 						end do
 						
-						place_sum = place_sum+(dx_vals(min_diff_pt,i)*dy*diff_z(j,i))
+						!Determine dy at this point in the profile
+						if (j.eq.1) then
+							dy_pt = abs(ranges(j+1,i)-ranges(j,i))
+						elseif (j.eq.rec_len2(i)) then
+							dy_pt = abs(ranges(j,i)-ranges(j-1,i))
+						else
+							dy_pt = abs(ranges(j,i)-ranges(j-1,i))/2+abs(ranges(j+1,i)-ranges(j,i))/2
+						end if
+						
+						place_sum = place_sum+(dx_vals(min_diff_pt,i)*dy_pt*diff_z(j,i))
+						
 					end if
 				end do	!End cross-shore locations
 				
@@ -2697,7 +2946,7 @@ subroutine auto_restoration
 					rest_time(rest_count(i),i) = time
 					rest_vol_added(rest_count(i),i) = place_sum
 					
-					write(4,*) time,n,profile_id(i),rest_vol_added(rest_count(i),i)
+					write(4,*) simu_time+time,n,profile_id(i),rest_vol_added(rest_count(i),i)
 				end if
 				
 			!Headland unit, profile in the unit
@@ -2715,13 +2964,15 @@ subroutine auto_restoration
 				max_y = ranges(in_high,i)
 				diff_y = max_y - tmpl_y(tmpl_max_in(i),i) !How far, in m, the restoration template should be shifted to align peak-to-peak
 
-				if (profile_id(i).eq.560) then
-					print *, 'Offset = ',diff_y
-					print *,'dune_range = ', dune_range
-					print *,'max_y = ', max_y
-				endif
+!				if (profile_id(i).eq.560) then
+!					print *, 'Offset = ',diff_y
+!					print *,'dune_range = ', dune_range
+!					print *,'max_y = ', max_y
+!				endif
 
 				restore_y1(1:tmpl_max_len(i),i) = tmpl_y(1:tmpl_max_len(i),i)+diff_y !y-values shifted to the island profile
+				
+				
 				
 !				elev(j,i)=interp1_nearest(rng_prof(1:rec_len(i),i), &
 !           z_prof(1:rec_len(i),i),rec_len(i),ranges(j,i))
@@ -2729,6 +2980,14 @@ subroutine auto_restoration
 				do j=1,rec_len2(i)
 					restore_z1(j,i) = interp1_nearest(restore_y1(1:tmpl_max_len(i),i),tmpl_z(1:tmpl_max_len(i),i), &
 					tmpl_max_len(i),ranges(j,i))
+				end do
+
+				!Identify where the restoration template crosses water -> update marsh edge
+				do j = 1,rec_len2(i)
+					if (restore_z1(j,i).gt.0) then
+						bi_edge(i) = ranges(j,i)
+						exit
+					end if
 				end do
 
 				!Add MHW to the template to keep up with eustatic SLR. Subsidence is handled due to grid z sinking
@@ -2753,7 +3012,16 @@ subroutine auto_restoration
 							end if
 						end do
 						
-						place_sum = place_sum+(dx_vals(min_diff_pt,i)*dy*diff_z(j,i))
+						!Determine dy at this point in the profile
+						if (j.eq.1) then
+							dy_pt = abs(ranges(j+1,i)-ranges(j,i))
+						elseif (j.eq.rec_len2(i)) then
+							dy_pt = abs(ranges(j,i)-ranges(j-1,i))
+						else
+							dy_pt = abs(ranges(j,i)-ranges(j-1,i))/2+abs(ranges(j+1,i)-ranges(j,i))/2
+						end if
+						
+						place_sum = place_sum+(dx_vals(min_diff_pt,i)*dy_pt*diff_z(j,i))
 					end if
 				end do	!End cross-shore locations
 				
@@ -2762,8 +3030,13 @@ subroutine auto_restoration
 					rest_time(rest_count(i),i) = time
 					rest_vol_added(rest_count(i),i) = place_sum
 					
-					write(4,*) time,n,profile_id(i),rest_vol_added(rest_count(i),i)
+					write(4,*) simu_time+time,n,profile_id(i),rest_vol_added(rest_count(i),i)
 				end if
+				
+				!Walk back the dune placement location
+				!Assumes that the initial distance is relative to the old dune line
+				rng_hd_dune(i) = rng_hd_dune(i)-dune_walkback(i);
+				
 			end if !End if -> check if island in grouping and island present
 		end do	!End loop through each profile
 		end if !End If/then for islands needing restoration
@@ -2787,6 +3060,7 @@ end subroutine auto_restoration
  ! give sea level rise rate per year (unit: meter per year)
  ! slr_rate is function of time, it increases with time
  ! time is counted by days, so need to change time into year
+
 
   slr_rate = slr_a + 2*slr_b*(time/365.25)
 
@@ -3036,6 +3310,32 @@ end subroutine auto_restoration
       !endif
     enddo
   close(10)
+  
+   !------------output current restore location for headlands --------------
+
+  print*,' Headland restoration output ... '
+  write(3,*) ' Headland restoration output ... '
+
+  ful_path = TRIM(fdir)//'Restore_info_'//TRIM(file_name)
+  open(10,file=TRIM(ful_path))
+
+    do i=1,nprof
+        write(10,*) profile_id(i),prof_rst_grp(i),prof_type(i),rng_hd_dune(i),dune_walkback(i)
+    enddo
+  close(10)
+  
+     !------------output current BI edges for marsh accretion --------------
+
+  print*,' BI edge information output ... '
+  write(3,*) ' BI edge information output ... '
+
+  ful_path = TRIM(fdir)//'BI_edge_'//TRIM(file_name)
+  open(10,file=TRIM(ful_path))
+
+    do i=1,nprof
+        write(10,*) profile_id(i),bi_edge(i)
+    enddo
+  close(10)
 
   end subroutine write_output
 !-------------------------------------------------------------
@@ -3141,11 +3441,14 @@ end subroutine auto_restoration
     write(10,*) 'END_TIME   = ', END_TIME
 
     write(10,*) 'SLR_CUMU   = ', slr_cumu
+	
+	write(10,*) 'OLD_MHW    = ', lev_mhw
 
 
     close(10)
 
     end subroutine update_input
+
 
 !--------------------------------------------------------------------
     subroutine update_azimuth
