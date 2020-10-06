@@ -3252,6 +3252,15 @@ end subroutine auto_restoration
 
   enddo
 
+ !-----------------formats used in output files---------  
+  
+1000 FORMAT(3(F,','),I0)
+1001 FORMAT(I0,',',3(F,','),F)
+1002 FORMAT(2(F,','),I0)
+1003 FORMAT(F,',',I0,',',2(F,','),F)
+1004 FORMAT(I0,','F)
+  
+     
  !-----------------output for xyz file------------------
 
   print*,' XYZ file output ... '
@@ -3262,11 +3271,10 @@ end subroutine auto_restoration
 !    write(10,*) '%     x-coord,    y-coord,    elevation,    profile ID'
     do i=1,nprof
       do j=1,rec_len(i)
-        write(10,*) x_s(j,i),y_s(j,i),elev(j,i),profile_id(i)
+        write(10,1000) x_s(j,i),y_s(j,i),elev(j,i),profile_id(i)
       enddo
     enddo
   close(10)
-
 
  !--------------ouput for xyz control file ---------
 
@@ -3277,10 +3285,10 @@ end subroutine auto_restoration
 
   open(10,file=TRIM(ful_path))
     do i=1,nprof
-      write(10,*) profile_id(i),x0s(i),y0s(i),azm(i),azm1(i)
+      write(10,1001) profile_id(i),x0s(i),y0s(i),azm(i),azm1(i)
     enddo
   close(10)
-
+     
  !------------output for sea shoreline location--------------
 
   print*,' Seaside shoreline file output ... '
@@ -3291,11 +3299,11 @@ end subroutine auto_restoration
     write(10,*) '%     x-coord,    y-coord,    profile ID'
     do i=1,nprof
       !if (subaer(i)==1) then
-        write(10,*) x_shln(i),y_shln(i),profile_id(i)
+        write(10,1002) x_shln(i),y_shln(i),profile_id(i)
       !endif
     enddo
   close(10)
-
+     
  !------------output for bay shoreline location--------------
 
   print*,' Bayside shoreline file output ... '
@@ -3306,7 +3314,7 @@ end subroutine auto_restoration
     write(10,*) '%     x-coord,    y-coord,    profile ID'
     do i=1,nprof
       !if (subaer(i)==1) then
-        write(10,*) xbay_shln(i),ybay_shln(i),profile_id(i)
+        write(10,1002) xbay_shln(i),ybay_shln(i),profile_id(i)
       !endif
     enddo
   close(10)
@@ -3320,10 +3328,10 @@ end subroutine auto_restoration
   open(10,file=TRIM(ful_path))
 
     do i=1,nprof
-        write(10,*) profile_id(i),prof_rst_grp(i),prof_type(i),rng_hd_dune(i),dune_walkback(i)
+        write(10,1003) profile_id(i),prof_rst_grp(i),prof_type(i),rng_hd_dune(i),dune_walkback(i)
     enddo
   close(10)
-  
+
      !------------output current BI edges for marsh accretion --------------
 
   print*,' BI edge information output ... '
@@ -3333,9 +3341,11 @@ end subroutine auto_restoration
   open(10,file=TRIM(ful_path))
 
     do i=1,nprof
-        write(10,*) profile_id(i),bi_edge(i)
+        write(10,1004) profile_id(i),bi_edge(i)
     enddo
   close(10)
+
+  
 
   end subroutine write_output
 !-------------------------------------------------------------
