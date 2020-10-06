@@ -26,10 +26,12 @@ for year in range(first_year,last_year):
             n+=1 #8760 hours or 8784 hours if leap year      
     annual_mean_mm.append((annual_total/n)*1000) #take the mean of the hourly data and convert from m to mm
 p = np.polyfit(years, np.asarray(annual_mean_mm),2) #fit a quadratic to the annual mean data
-ESLR_rate_mmyr = (p[0]*2*years)+(p[1]) #take the first derivative and plug in years to get the rate
+ESLR_rate_mmyr = []
+for year in range(first_year,last_year):
+    ESLR_rate_mmyr.append((p[0]*2*years)+(p[1])) #take the first derivative and plug in years to get the rate
             
 with open(ESLR_out_file, mode='w') as outf: 
     for i in range(0,len(years)):
-        outf.write("%s %s\n" % (years[i],ESLR_rate_mmyr[i]))
+        outf.write("%d %0.2f\n" % (years[i],ESLR_rate_mmyr[i]))
                             
 outf.close()     
