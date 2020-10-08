@@ -13,13 +13,13 @@ import numpy as np #used for creating arrays of the csv files
 from scipy.interpolate import griddata #used for the interpolation
 
 #Define the save location
-save_loc = 'xyz output name' #output name and file path
+save_loc = r'C:\Eric\git\ICM_BIMODE\profile_0001_gridded.csv' #output name and file path
 
 #Read the data files
-model_results = 'model results filename' #This is the filepath and filename of the model results
+model_results = r'C:\Eric\git\ICM_BIMODE\profile_0001' #This is the filepath and filename of the model results
 results = pd.read_csv(model_results,delim_whitespace=True,names=['x','y','z','trans']) #Read the model results file
 
-fixed_output = 'fixed xy filename' #This is the filepath and filename of the fixed output grid points
+fixed_output = r'C:\Eric\git\ICM_BIMODE\IsleDernieres_grid_5m_fixedout_BI_DEM.csv' #This is the filepath and filename of the fixed output grid points
 fixed_grid = pd.read_csv(fixed_output) #Read the csv file of the fixed output points; 1 headerline; format: X-coordinate, Y-coordinate, transect, point number
 
 #Create arrays for griddata
