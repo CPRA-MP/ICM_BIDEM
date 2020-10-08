@@ -4,11 +4,11 @@
 
 import numpy as np
 
-tide_input_directory = r'C:\Users\madel\Coastal Hydro Dropbox\Madeline Foster-Martinez\MRF_BarrierIslands'
+tide_input_directory = r'D:\ICM\ICM_BIDEM'
 tide_file = r'%s\TideData.csv' % tide_input_directory
 tide_data = np.genfromtxt(tide_file,skip_header=1,delimiter=',',dtype='str')
 
-ESLR_out_file_path = r'C:\Users\madel\Coastal Hydro Dropbox\Madeline Foster-Martinez\MRF_BarrierIslands'
+ESLR_out_file_path = r'D:\ICM\ICM_BIDEM\Barataria\input'
 ESLR_out_file_name = r'SLR_record4modulation.txt'
 ESLR_out_file = r'%s\%s' % (ESLR_out_file_path, ESLR_out_file_name)
 
@@ -28,7 +28,7 @@ for year in range(first_year,last_year):
 p = np.polyfit(years, np.asarray(annual_mean_mm),2) #fit a quadratic to the annual mean data
 ESLR_rate_mmyr = []
 for year in range(first_year,last_year):
-    ESLR_rate_mmyr.append((p[0]*2*years)+(p[1])) #take the first derivative and plug in years to get the rate
+    ESLR_rate_mmyr.append((p[0]*2*year)+(p[1])) #take the first derivative and plug in years to get the rate
             
 with open(ESLR_out_file, mode='w') as outf: 
     for i in range(0,len(years)):

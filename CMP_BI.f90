@@ -3254,11 +3254,11 @@ end subroutine auto_restoration
 
  !-----------------formats used in output files---------  
   
-1000 FORMAT(3(F0.4,','),I)
-1001 FORMAT(I,',',3(F0.4,','),F0.4)
-1002 FORMAT(2(F,','),I)
-1003 FORMAT(F0.4,',',I,',',2(F0.4,','),F0.4)
-1004 FORMAT(I,','F0.4)
+1000 FORMAT(3(F0.4,','),I0)
+1001 FORMAT(I0,',',3(F0.4,','),F0.4)
+1002 FORMAT(2(F,','),I0)
+1003 FORMAT(2(I0,','),2(F0.4,','),F0.4)
+1004 FORMAT(I0,','F0.4)
   
      
  !-----------------output for xyz file------------------
@@ -3435,15 +3435,16 @@ end subroutine auto_restoration
       read(10,*)
     enddo
 
-1005 FORMAT(13A,A)
-1006 FORMAT(13A,F0.4)
-1007 FORMAT(13A,F)
-     
+1005 FORMAT(A13,L)
+1006 FORMAT(A13,F0.4)
+1007 FORMAT(A13,A13)
+1008 FORMAT(A13,F0.4)
+    
     write(10,1005) 'NEW_SIMU   = ',NEW_SIMU
 
     write(10,1006) 'SIMU_TIME  = ',simu_time
 
-    write(10,1005) 'START_TIME = ',END_TIME
+    write(10,1007) 'START_TIME = ',END_TIME
 
     read(END_TIME(2:5),'(i4)') year1
 
@@ -3452,11 +3453,11 @@ end subroutine auto_restoration
     year1 = year1 + 1
     write(END_TIME(2:5),'(i4)') year1
 
-    write(10,1005) 'END_TIME   = ', END_TIME
+    write(10,1007) 'END_TIME   = ', END_TIME
 
-    write(10,1007) 'SLR_CUMU   = ', slr_cumu
+    write(10,1008) 'SLR_CUMU   = ', slr_cumu
 	
-	write(10,1006) 'OLD_MHW    = ', lev_mhw
+	write(10,1008) 'OLD_MHW    = ', lev_mhw
 
 
     close(10)
