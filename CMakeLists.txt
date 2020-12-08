@@ -56,7 +56,7 @@ INCLUDE(${CMAKE_SOURCE_DIR}/cmake/architecture.cmake)
 ###########################################################################
 # ICM_BIDEM
 ###########################################################################
-SET( BIDEM hydro_v${ICMBIDEM_VERSION_STRING} )
+SET( BIDEM bidem_v${ICMBIDEM_VERSION_STRING} )
 ADD_EXECUTABLE( ${BIDEM} CMP_BI.f90
                          mod_global.f90
                          mod_util.f90 )
