@@ -89,7 +89,7 @@
 				print*,' Model year not found in SLR rate file and SLR modulation is on...please check'
 				write(3,*)' Model year not found in SLR rate file and SLR modulation is on...please check'
 				print*,' Press any key to EXIT the program ... '
-				pause
+				! HPC no shell ! pause
 				stop
 			end if
 		
@@ -436,7 +436,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
      endif
     read(START_TIME(6:7),'(i2)') mo0
@@ -453,7 +453,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
      endif
     read(START_TIME(8:9),'(i2)') da0
@@ -470,7 +470,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
       endif
     read(START_TIME(10:11),'(i2)') hr0
@@ -487,7 +487,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
      endif
     read(START_TIME(12:13),'(i2)') min0
@@ -504,7 +504,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
      endif
 
@@ -529,7 +529,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
      endif
     read(END_TIME(6:7),'(i2)') moe
@@ -546,7 +546,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
      endif
     read(END_TIME(8:9),'(i2)') dae
@@ -562,7 +562,7 @@
        write(3,*) ' Day ',dae,' must ranges from 1 to 31 '
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
-       pause
+       ! HPC no shell ! pause
        stop
       endif
     read(END_TIME(10:11),'(i2)') hre
@@ -578,7 +578,7 @@
        write(3,*) ' Hour ',hre,' must ranges from 0 to 23 '
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
-       pause
+       ! HPC no shell ! pause
        stop
      endif
     read(END_TIME(12:13),'(i2)') mine
@@ -595,7 +595,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
      endif
 
@@ -822,7 +822,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       pause
+       ! HPC no shell ! pause
        stop
    endif
 
@@ -1058,7 +1058,7 @@
         print*,' The output profile ID is out of range ..., please check '
         write(3,*)' The output profile ID is out of range ..., please check '
         print*,' Press any key to EXIT the program ... '
-        pause
+        ! HPC no shell ! pause
         stop
     endif
 
@@ -1266,7 +1266,7 @@
         print*,' Number of dx profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of dx profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        pause
+        ! HPC no shell ! pause
         stop
     endif
 	
@@ -1281,7 +1281,7 @@
 			print*,' Profile ID mismatch, dx. Please check '
 			write(3,*)' Profile ID mismatch, dx. Please check '
 			print*,' Press any key to EXIT the program ... '
-			pause
+			! HPC no shell ! pause
 			stop
 		endif	
         dx_vals(1:nrng_dx,i)=rr_s(1+k:nrng_dx+k)
@@ -1366,7 +1366,7 @@
 			write(3,*)' Profile ID in grid is ', profile_id(k)
 			write(3,*)' Profile ID in file is ', rp_s(k)
 			print*,' Press any key to EXIT the program ... '
-			pause
+			! HPC no shell ! pause
 			stop
 		endif
 	   
@@ -1378,7 +1378,7 @@
         print*,' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        pause
+        ! HPC no shell ! pause
         stop
     endif
 	
@@ -1478,7 +1478,7 @@
         print*,' First retreat rate is not the shoreline/zero  ..., please check '
         write(3,*)' First retreat rate is not the shoreline/zero  ..., please check '
         print*,' Press any key to EXIT the program ... '
-        pause
+        ! HPC no shell ! pause
         stop
     endif
    
@@ -1494,7 +1494,7 @@
         print*,' Number of cross-shore retreat rate profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of cross-shore retreat rate profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        pause
+        ! HPC no shell ! pause
         stop
     endif
 	
@@ -1509,7 +1509,7 @@
 			print*,' Profile ID mismatch, cross-shore retreat. Please check '
 			write(3,*)' Profile ID mismatch, cross-shore retreat. Please check '
 			print*,' Press any key to EXIT the program ... '
-			pause
+			! HPC no shell ! pause
 			stop
 		endif	
         rtrt_grd(1:rtrt_ndep,i)=rr_s(1+k:rtrt_ndep+k)
@@ -1566,7 +1566,7 @@
 			print*,' Profile ID mismatch, bayside retreat. Please check '
 			write(3,*)' Profile ID mismatch, bayside retreat. Please check '
 			print*,' Press any key to EXIT the program ... '
-			pause
+			! HPC no shell ! pause
 			stop
 		endif	
 			
@@ -1755,7 +1755,7 @@ if (rst_on.eq.1) then
 			write(3,*)' Profile ID in grid is ', profile_id(k)
 			write(3,*)' Profile ID in file is ', rp_s(k)
 			print*,' Press any key to EXIT the program ... '
-			pause
+			! HPC no shell ! ! HPC no shell ! pause
 			stop
 		endif
 		
@@ -1786,7 +1786,7 @@ if (rst_on.eq.1) then
         print*,' Number of island grouping profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of island grouping profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        pause
+        ! HPC no shell ! pause
         stop
     endif
 endif
@@ -1996,7 +1996,7 @@ endif
   print*, ' Can not find input file: ', trim(fname)
   print*, ' Input Error ! File does not exist in current directory ! '
   print*, ' Press any key and <Enter> to exit ... '
-  pause
+  ! HPC no shell ! pause
   stop
   end subroutine exist_error
 
@@ -2191,7 +2191,7 @@ subroutine calc_crit_width
 			print*,' Restoration profile of zero width, profile ',profile_id(i),' Please check '
 			write(3,*)' Restoration profile of zero width, profile ',profile_id(i),' Please check '
 			print*,' Press any key to EXIT the program ... '
-			pause
+			! HPC no shell ! pause
 			stop
 		endif
 	enddo
