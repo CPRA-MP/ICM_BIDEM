@@ -3399,7 +3399,7 @@ end subroutine auto_restoration
     integer :: i
     integer :: line,ierr,year1,month1
     character(len=30) :: file_name,var_name
-    character(len=3000) :: linestring
+    character(len=3000) :: linestring,trimstring
 
 !---------- update input.txt ----------------------------
 
@@ -3434,7 +3434,8 @@ end subroutine auto_restoration
 
     do i=1,200	!line-1
       read(10,'(A)') linestring
-      write(*,'(A)') trim(linestring)(1:8)
+      trimstring = trim(linestring)
+      write(*,'(A)') trimstring(1:8)
       if (trim(linestring)(1:8) == 'NEW_SIMU') then
           write(*,*)'yeppers'
       endif
