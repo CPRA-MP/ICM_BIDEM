@@ -3396,7 +3396,7 @@ end subroutine auto_restoration
     use global
     use input_util
     implicit none
-    integer :: i
+    integer :: i,eoif
     integer :: line,ierr,year1,month1
     character(len=30) :: file_name,var_name
     character(len=3000) :: linestring,trimstring
@@ -3436,7 +3436,7 @@ end subroutine auto_restoration
 	!Be sure to be at the beginning of the file
     rewind(10)
   ! skip the lines for other inputs
-
+    eoif = 0	! flag to be triggered when end of input file is reached (input files can now have variable lengths)
     do i=1,200	!line-1
       write(*,*) i
       read(10,'(A)') linestring
@@ -3463,8 +3463,12 @@ end subroutine auto_restoration
           write(90,1008) 'SLR_CUMU   = ', slr_cumu
       else if(trim7 == 'OLD_MHW') then	  
           write(90,1008) 'OLD_MHW    = ', lev_mhw
+	  eoif = 1
       else
       	  write(90,'(A)') trim(linestring)
+      endif
+      if (eoif == 1) then
+          break
       endif
     enddo
 
