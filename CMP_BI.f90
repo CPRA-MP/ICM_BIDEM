@@ -3448,20 +3448,20 @@ end subroutine auto_restoration
       
       if(trim8 == 'NEW_SIMU') then
           write(90,1005) 'NEW_SIMU   = ',NEW_SIMU
-      elif(trim9 == 'SIMU_TIME') then    
+      else if(trim9 == 'SIMU_TIME') then    
 	  write(90,1006) 'SIMU_TIME  = ',simu_time
-      elif(trim10 == 'START_TIME') then
+      else if(trim10 == 'START_TIME') then
           write(90,1007) 'START_TIME = ',END_TIME
 	!    read(END_TIME(6:7),'(i2)') month1
 	! now the model only runs for one year and then stop
-      elif(trim8 == 'END_TIME') then
+      else if(trim8 == 'END_TIME') then
           read(END_TIME(2:5),'(i4)') year1
           year1 = year1 + 1
           write(END_TIME(2:5),'(i4)') year1
           write(90,1007) 'END_TIME   = ', END_TIME
-      elif(trim8 == 'SLR_CUMU') then
+      else if(trim8 == 'SLR_CUMU') then
           write(90,1008) 'SLR_CUMU   = ', slr_cumu
-      elif(trim7 == 'OLD_MHW') then	  
+      else if(trim7 == 'OLD_MHW') then	  
           write(90,1008) 'OLD_MHW    = ', lev_mhw
       else
       	  write(90,'(A)') linestring
