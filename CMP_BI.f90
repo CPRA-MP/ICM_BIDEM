@@ -3400,7 +3400,11 @@ end subroutine auto_restoration
     integer :: line,ierr,year1,month1
     character(len=30) :: file_name,var_name
     character(len=3000) :: linestring,trimstring
-
+    character(len=7) :: trim7
+    character(len=8) :: trim8
+    character(len=9) :: trim9
+    character(len=10) :: trim10
+    
 !---------- update input.txt ----------------------------
 
     print*,' Now updating input.txt ... '
@@ -3437,23 +3441,27 @@ end subroutine auto_restoration
       write(*,*) i
       read(10,'(A)') linestring
       trimstring = trim(adjustL(linestring))
+      trim7  = trimstring(1:7)
+      trim8  = trimstring(1:8)
+      trim9  = trimstring(1:9)
+      trim10 = trimstring(1:10)
       
-      if(trimstring(1:8) == 'NEW_SIMU') then
+      if(trim8 == 'NEW_SIMU') then
           write(90,1005) 'NEW_SIMU   = ',NEW_SIMU
-      elif(trimstring(1:9) == 'SIMU_TIME') then    
+      elif(trim9 == 'SIMU_TIME') then    
 	  write(90,1006) 'SIMU_TIME  = ',simu_time
-      elif(trimstring(1:10) == 'START_TIME') then
+      elif(trim10 == 'START_TIME') then
           write(90,1007) 'START_TIME = ',END_TIME
 	!    read(END_TIME(6:7),'(i2)') month1
 	! now the model only runs for one year and then stop
-      elif(trimstring(1:8) == 'END_TIME') then
+      elif(trim8 == 'END_TIME') then
           read(END_TIME(2:5),'(i4)') year1
           year1 = year1 + 1
           write(END_TIME(2:5),'(i4)') year1
           write(90,1007) 'END_TIME   = ', END_TIME
-      elif(trimstring(1:8) == 'SLR_CUMU') then
+      elif(trim8 == 'SLR_CUMU') then
           write(90,1008) 'SLR_CUMU   = ', slr_cumu
-      elif(trimstring(1:7) == 'OLD_MHW') then	  
+      elif(trim7 == 'OLD_MHW') then	  
           write(90,1008) 'OLD_MHW    = ', lev_mhw
       else
       	  write(90,'(A)') linestring
