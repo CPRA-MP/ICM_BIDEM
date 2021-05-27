@@ -3468,7 +3468,7 @@ end subroutine auto_restoration
       	  write(90,'(A)') trim(linestring)
       endif
       if (eoif == 1) then
-          break
+          exit
       endif
     enddo
 
