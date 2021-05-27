@@ -3433,8 +3433,8 @@ end subroutine auto_restoration
   ! skip the lines for other inputs
 
     do i=1,line-1
-      read(10,*) linestring
-      write(*,'(I,A,I,x,A)') i,':',line,linestring
+      read(10,'(A)') linestring
+      write(*,'(1I,1A,3I,x,A)') i,':',line,trim(linestring)
     enddo
 
 1005 FORMAT(A13,L)
