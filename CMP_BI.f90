@@ -3432,9 +3432,12 @@ end subroutine auto_restoration
     rewind(10)
   ! skip the lines for other inputs
 
-    do i=1,line-1
+    do i=1,200	!line-1
       read(10,'(A)') linestring
-      write(*,'(A)') trim(linestring)
+      write(*,'(A)') trim(linestring)(1:8)
+      if (trim(linestring)(1:8) == 'NEW_SIMU') then
+          write(*,*)'yeppers'
+      endif
     enddo
 
 1005 FORMAT(A13,L)
