@@ -3428,16 +3428,35 @@ end subroutine auto_restoration
  !  print*,' file_name = ',file_name
 
     open(10,file=file_name)
+    open(90,file='input.txt.new')
 	!Be sure to be at the beginning of the file
     rewind(10)
   ! skip the lines for other inputs
 
     do i=1,200	!line-1
+      write(*,*) i
       read(10,'(A)') linestring
       trimstring = trim(adjustL(linestring))
-      !write(*,'(A)') trimstring(1:8)
+      
       if(trimstring(1:8) == 'NEW_SIMU') then
-          write(*,*)'yeppers'
+          write(90,1005) 'NEW_SIMU   = ',NEW_SIMU
+      elif(trimstring(1:9) == 'SIMU_TIME') then    
+	  write(90,1006) 'SIMU_TIME  = ',simu_time
+      elif(trimstring(1:10) == 'START_TIME') then
+          write(90,1007) 'START_TIME = ',END_TIME
+	!    read(END_TIME(6:7),'(i2)') month1
+	! now the model only runs for one year and then stop
+      elif(trimstring(1:8) == 'END_TIME') then
+          read(END_TIME(2:5),'(i4)') year1
+          year1 = year1 + 1
+          write(END_TIME(2:5),'(i4)') year1
+          write(90,1007) 'END_TIME   = ', END_TIME
+      elif(trimstring(1:8) == 'SLR_CUMU') then
+          write(90,1008) 'SLR_CUMU   = ', slr_cumu
+      elif(trimstring(1:7) == 'OLD_MHW') then	  
+          write(90,1008) 'OLD_MHW    = ', lev_mhw
+      else
+      	  write(90,'(A)') linestring
       endif
     enddo
 
@@ -3446,28 +3465,8 @@ end subroutine auto_restoration
 1007 FORMAT(A13,A13)
 1008 FORMAT(A13,F0.4)
     
-    write(10,1005) 'NEW_SIMU   = ',NEW_SIMU
-
-    write(10,1006) 'SIMU_TIME  = ',simu_time
-
-    write(10,1007) 'START_TIME = ',END_TIME
-
-    read(END_TIME(2:5),'(i4)') year1
-
-!    read(END_TIME(6:7),'(i2)') month1
-! now the model only runs for one year and then stop
-    year1 = year1 + 1
-    write(END_TIME(2:5),'(i4)') year1
-
-    write(10,1007) 'END_TIME   = ', END_TIME
-
-    write(10,1008) 'SLR_CUMU   = ', slr_cumu
-	
-	write(10,1008) 'OLD_MHW    = ', lev_mhw
-
-
     close(10)
-
+    close(90)
     end subroutine update_input
 
 
