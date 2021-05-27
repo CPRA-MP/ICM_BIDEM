@@ -3435,10 +3435,10 @@ end subroutine auto_restoration
     do i=1,200	!line-1
       read(10,'(A)') linestring
       trimstring = trim(adjustL(linestring))
-      write(*,'(A)') trimstring(1:8)
-      !if (trimstring(1:8) == 'NEW_SIMU') then
-      !    write(*,*)'yeppers'
-      !endif
+      !write(*,'(A)') trimstring(1:8)
+      if(trimstring(1:8) == 'NEW_SIMU') then
+          write(*,*)'yeppers'
+      endif
     enddo
 
 1005 FORMAT(A13,L)
