@@ -3399,6 +3399,7 @@ end subroutine auto_restoration
     integer :: i
     integer :: line,ierr,year1,month1
     character(len=30) :: file_name,var_name
+    character(len=3000) :: linestring
 
 !---------- update input.txt ----------------------------
 
@@ -3432,7 +3433,8 @@ end subroutine auto_restoration
   ! skip the lines for other inputs
 
     do i=1,line-1
-      read(10,*)
+      read(10,*) linestring
+      write(*,'(I,A,I,x,A)') i,':',line,trim(linestring)
     enddo
 
 1005 FORMAT(A13,L)
