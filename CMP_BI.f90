@@ -3396,7 +3396,7 @@ end subroutine auto_restoration
     use global
     use input_util
     implicit none
-    integer :: i,eoif
+    integer :: i,eoif,maxinputline
     integer :: line,ierr,year1,month1
     character(len=30) :: file_name,var_name
     character(len=3000) :: linestring,trimstring
@@ -3411,6 +3411,7 @@ end subroutine auto_restoration
     write(3,*) ' Now updating input.txt ... '
 
     file_name = 'input.txt'
+    maxinputline = 2000		! this is the maximum number of lines allowed in 'input.txt'
     if(.NOT.Check_Exist(trim(file_name))) call exist_error(trim(file_name))
 
   ! update NEW_SIMULATION
@@ -3432,13 +3433,11 @@ end subroutine auto_restoration
  !  print*,' file_name = ',file_name
 
     open(10,file=file_name)
-    open(90,file='input.txt.new')
-	!Be sure to be at the beginning of the file
+    !Be sure to be at the beginning of the file
     rewind(10)
   ! skip the lines for other inputs
     eoif = 0	! flag to be triggered when end of input file is reached (input files can now have variable lengths)
-    do i=1,200	!line-1
-      write(*,*) i
+    do i=1,maxinputline	!line-1
       read(10,'(A)') linestring
       trimstring = trim(adjustL(linestring))
       trim7  = trimstring(1:7)
@@ -3447,25 +3446,25 @@ end subroutine auto_restoration
       trim10 = trimstring(1:10)
       
       if(trim8 == 'NEW_SIMU') then
-          write(90,1005) 'NEW_SIMU   = ',NEW_SIMU
+          write(10,1005) 'NEW_SIMU   = ',NEW_SIMU
       else if(trim9 == 'SIMU_TIME') then    
-	  write(90,1006) 'SIMU_TIME  = ',simu_time
+	  write(10,1006) 'SIMU_TIME  = ',simu_time
       else if(trim10 == 'START_TIME') then
-          write(90,1007) 'START_TIME = ',END_TIME
+          write(10,1007) 'START_TIME = ',END_TIME
 	!    read(END_TIME(6:7),'(i2)') month1
 	! now the model only runs for one year and then stop
       else if(trim8 == 'END_TIME') then
           read(END_TIME(2:5),'(i4)') year1
           year1 = year1 + 1
           write(END_TIME(2:5),'(i4)') year1
-          write(90,1007) 'END_TIME   = ', END_TIME
+          write(10,1007) 'END_TIME   = ', END_TIME
       else if(trim8 == 'SLR_CUMU') then
-          write(90,1008) 'SLR_CUMU   = ', slr_cumu
+          write(10,1008) 'SLR_CUMU   = ', slr_cumu
       else if(trim7 == 'OLD_MHW') then	  
-          write(90,1008) 'OLD_MHW    = ', lev_mhw
+          write(10,1008) 'OLD_MHW    = ', lev_mhw
 	  eoif = 1
       else
-      	  write(90,'(A)') trim(linestring)
+      	  write(10,'(A)') trim(linestring)
       endif
       if (eoif == 1) then
           exit
@@ -3476,9 +3475,8 @@ end subroutine auto_restoration
 1006 FORMAT(A13,F0.4)
 1007 FORMAT(A13,A13)
 1008 FORMAT(A13,F0.4)
-    
     close(10)
-    close(90)
+
     end subroutine update_input
 
 
