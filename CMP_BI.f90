@@ -3464,7 +3464,7 @@ end subroutine auto_restoration
       else if(trim7 == 'OLD_MHW') then	  
           write(90,1008) 'OLD_MHW    = ', lev_mhw
       else
-      	  write(90,'(A)') linestring
+      	  write(90,'(A)') trim(linestring)
       endif
     enddo
 
