@@ -3434,7 +3434,7 @@ end subroutine auto_restoration
 
     do i=1,line-1
       read(10,'(A)') linestring
-      write(*,*) i,':',line,trim(linestring)
+      write(*,'(A)') trim(linestring)
     enddo
 
 1005 FORMAT(A13,L)
