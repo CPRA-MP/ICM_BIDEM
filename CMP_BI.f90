@@ -89,7 +89,7 @@
 				print*,' Model year not found in SLR rate file and SLR modulation is on...please check'
 				write(3,*)' Model year not found in SLR rate file and SLR modulation is on...please check'
 				print*,' Press any key to EXIT the program ... '
-				! HPC no shell ! pause
+				read*,
 				stop
 			end if
 		
@@ -331,7 +331,7 @@
   ! check whether 'input.txt' exists in current diretory
 
     file_name='input.txt'
-    if(.NOT.Check_Exist(trim(file_name))) call exist_error(trim(file_name))
+    if(.NOT.Check_Exist(trim(file_name))) call exist_error(file_name)
 
  !------------------title---------------------
     CALL GET_STRING_VAL(TITLE,FILE_NAME,'TITLE',line,ierr)
@@ -436,7 +436,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
     read(START_TIME(6:7),'(i2)') mo0
@@ -453,7 +453,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
     read(START_TIME(8:9),'(i2)') da0
@@ -470,7 +470,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
       endif
     read(START_TIME(10:11),'(i2)') hr0
@@ -487,7 +487,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
     read(START_TIME(12:13),'(i2)') min0
@@ -504,7 +504,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
 
@@ -529,7 +529,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
     read(END_TIME(6:7),'(i2)') moe
@@ -546,7 +546,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
     read(END_TIME(8:9),'(i2)') dae
@@ -562,7 +562,7 @@
        write(3,*) ' Day ',dae,' must ranges from 1 to 31 '
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
-       ! HPC no shell ! pause
+       read*,rr
        stop
       endif
     read(END_TIME(10:11),'(i2)') hre
@@ -578,7 +578,7 @@
        write(3,*) ' Hour ',hre,' must ranges from 0 to 23 '
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
     read(END_TIME(12:13),'(i2)') mine
@@ -595,7 +595,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
      endif
 
@@ -822,7 +822,7 @@
        write(3,*) ' Press any key and <Enter> to exit program ... '
        write(3,*) '  '
 
-       ! HPC no shell ! pause
+       read*,rr
        stop
    endif
 
@@ -1058,7 +1058,7 @@
         print*,' The output profile ID is out of range ..., please check '
         write(3,*)' The output profile ID is out of range ..., please check '
         print*,' Press any key to EXIT the program ... '
-        ! HPC no shell ! pause
+        read*,
         stop
     endif
 
@@ -1266,7 +1266,7 @@
         print*,' Number of dx profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of dx profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        ! HPC no shell ! pause
+        read*,
         stop
     endif
 	
@@ -1281,7 +1281,7 @@
 			print*,' Profile ID mismatch, dx. Please check '
 			write(3,*)' Profile ID mismatch, dx. Please check '
 			print*,' Press any key to EXIT the program ... '
-			! HPC no shell ! pause
+			read*,
 			stop
 		endif	
         dx_vals(1:nrng_dx,i)=rr_s(1+k:nrng_dx+k)
@@ -1366,7 +1366,7 @@
 			write(3,*)' Profile ID in grid is ', profile_id(k)
 			write(3,*)' Profile ID in file is ', rp_s(k)
 			print*,' Press any key to EXIT the program ... '
-			! HPC no shell ! pause
+			read*,
 			stop
 		endif
 	   
@@ -1378,7 +1378,7 @@
         print*,' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        ! HPC no shell ! pause
+        read*,
         stop
     endif
 	
@@ -1478,7 +1478,7 @@
         print*,' First retreat rate is not the shoreline/zero  ..., please check '
         write(3,*)' First retreat rate is not the shoreline/zero  ..., please check '
         print*,' Press any key to EXIT the program ... '
-        ! HPC no shell ! pause
+        read*,
         stop
     endif
    
@@ -1494,7 +1494,7 @@
         print*,' Number of cross-shore retreat rate profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of cross-shore retreat rate profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        ! HPC no shell ! pause
+        read*,
         stop
     endif
 	
@@ -1509,7 +1509,7 @@
 			print*,' Profile ID mismatch, cross-shore retreat. Please check '
 			write(3,*)' Profile ID mismatch, cross-shore retreat. Please check '
 			print*,' Press any key to EXIT the program ... '
-			! HPC no shell ! pause
+			read*,
 			stop
 		endif	
         rtrt_grd(1:rtrt_ndep,i)=rr_s(1+k:rtrt_ndep+k)
@@ -1566,7 +1566,7 @@
 			print*,' Profile ID mismatch, bayside retreat. Please check '
 			write(3,*)' Profile ID mismatch, bayside retreat. Please check '
 			print*,' Press any key to EXIT the program ... '
-			! HPC no shell ! pause
+			read*,
 			stop
 		endif	
 			
@@ -1755,7 +1755,7 @@ if (rst_on.eq.1) then
 			write(3,*)' Profile ID in grid is ', profile_id(k)
 			write(3,*)' Profile ID in file is ', rp_s(k)
 			print*,' Press any key to EXIT the program ... '
-			! HPC no shell ! ! HPC no shell ! pause
+			read*,
 			stop
 		endif
 		
@@ -1786,7 +1786,7 @@ if (rst_on.eq.1) then
         print*,' Number of island grouping profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of island grouping profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        ! HPC no shell ! pause
+        read*,
         stop
     endif
 endif
@@ -1996,7 +1996,7 @@ endif
   print*, ' Can not find input file: ', trim(fname)
   print*, ' Input Error ! File does not exist in current directory ! '
   print*, ' Press any key and <Enter> to exit ... '
-  ! HPC no shell ! pause
+  read*, OK
   stop
   end subroutine exist_error
 
@@ -2191,7 +2191,7 @@ subroutine calc_crit_width
 			print*,' Restoration profile of zero width, profile ',profile_id(i),' Please check '
 			write(3,*)' Restoration profile of zero width, profile ',profile_id(i),' Please check '
 			print*,' Press any key to EXIT the program ... '
-			! HPC no shell ! pause
+			read*,
 			stop
 		endif
 	enddo
@@ -2874,12 +2874,25 @@ subroutine auto_restoration
 				end if
 			!Island unit, profile in the unit, but no residual island
 			elseif ((island(i).eq.0).AND.(prof_rst_grp(i).eq.n).AND.(prof_type(i).eq.1)) then 
-				do j = in_max_island(i)-15,in_max_island(i)+15 !Only evaluate the subaerial island	- find the current high point
-					if (elev(j,i).ge.max_high) then
+				!PSD mod 15-Oct-2021 - use saved BI edge, check for maximum elevation seaward of that
+				
+				do j = rec_len2(i),1,-1
+					if (ranges(j,i).le.bi_edge(i)) then !Passed the old edge of the barrier - stop
+						exit
+					end if
+					
+					if (elev(j,i).gt.(max_high+0.01)) then !Add a little slop so flat restoration profile catches leading edge
 						in_high = j
 						max_high = elev(j,i)
 					end if
 				end do
+				
+!				do j = in_max_island(i)-15,in_max_island(i)+15 !Only evaluate the subaerial island	- find the current high point
+!					if (elev(j,i).ge.max_high) then
+!						in_high = j
+!						max_high = elev(j,i)
+!					end if
+!				end do
 				
 				max_y = ranges(in_high,i)
 				diff_y = max_y - tmpl_y(tmpl_max_in(i),i) !How far, in m, the restoration template should be shifted to align peak-to-peak
@@ -3252,15 +3265,6 @@ end subroutine auto_restoration
 
   enddo
 
- !-----------------formats used in output files---------  
-  
-1000 FORMAT(3(F0.4,','),I0)
-1001 FORMAT(I0,',',3(F0.4,','),F0.4)
-1002 FORMAT(2(F,','),I0)
-1003 FORMAT(2(I0,','),2(F0.4,','),F0.4)
-1004 FORMAT(I0,','F0.4)
-  
-     
  !-----------------output for xyz file------------------
 
   print*,' XYZ file output ... '
@@ -3271,10 +3275,11 @@ end subroutine auto_restoration
 !    write(10,*) '%     x-coord,    y-coord,    elevation,    profile ID'
     do i=1,nprof
       do j=1,rec_len(i)
-        write(10,1000) x_s(j,i),y_s(j,i),elev(j,i),profile_id(i)
+        write(10,*) x_s(j,i),y_s(j,i),elev(j,i),profile_id(i)
       enddo
     enddo
   close(10)
+
 
  !--------------ouput for xyz control file ---------
 
@@ -3285,10 +3290,10 @@ end subroutine auto_restoration
 
   open(10,file=TRIM(ful_path))
     do i=1,nprof
-      write(10,1001) profile_id(i),x0s(i),y0s(i),azm(i),azm1(i)
+      write(10,*) profile_id(i),x0s(i),y0s(i),azm(i),azm1(i)
     enddo
   close(10)
-     
+
  !------------output for sea shoreline location--------------
 
   print*,' Seaside shoreline file output ... '
@@ -3299,11 +3304,11 @@ end subroutine auto_restoration
     write(10,*) '%     x-coord,    y-coord,    profile ID'
     do i=1,nprof
       !if (subaer(i)==1) then
-        write(10,1002) x_shln(i),y_shln(i),profile_id(i)
+        write(10,*) x_shln(i),y_shln(i),profile_id(i)
       !endif
     enddo
   close(10)
-     
+
  !------------output for bay shoreline location--------------
 
   print*,' Bayside shoreline file output ... '
@@ -3314,7 +3319,7 @@ end subroutine auto_restoration
     write(10,*) '%     x-coord,    y-coord,    profile ID'
     do i=1,nprof
       !if (subaer(i)==1) then
-        write(10,1002) xbay_shln(i),ybay_shln(i),profile_id(i)
+        write(10,*) xbay_shln(i),ybay_shln(i),profile_id(i)
       !endif
     enddo
   close(10)
@@ -3328,10 +3333,10 @@ end subroutine auto_restoration
   open(10,file=TRIM(ful_path))
 
     do i=1,nprof
-        write(10,1003) profile_id(i),prof_rst_grp(i),prof_type(i),rng_hd_dune(i),dune_walkback(i)
+        write(10,*) profile_id(i),prof_rst_grp(i),prof_type(i),rng_hd_dune(i),dune_walkback(i)
     enddo
   close(10)
-
+  
      !------------output current BI edges for marsh accretion --------------
 
   print*,' BI edge information output ... '
@@ -3341,11 +3346,9 @@ end subroutine auto_restoration
   open(10,file=TRIM(ful_path))
 
     do i=1,nprof
-        write(10,1004) profile_id(i),bi_edge(i)
+        write(10,*) profile_id(i),bi_edge(i)
     enddo
   close(10)
-
-  
 
   end subroutine write_output
 !-------------------------------------------------------------
@@ -3396,24 +3399,17 @@ end subroutine auto_restoration
     use global
     use input_util
     implicit none
-    integer :: i,eoif,maxinputline
+    integer :: i
     integer :: line,ierr,year1,month1
-    character(len=30) :: file_name,var_name,file_name_new
-    character(len=3000) :: linestring,trimstring
-    character(len=7) :: trim7
-    character(len=8) :: trim8
-    character(len=9) :: trim9
-    character(len=10) :: trim10
-    
+    character(len=30) :: file_name,var_name
+
 !---------- update input.txt ----------------------------
 
     print*,' Now updating input.txt ... '
     write(3,*) ' Now updating input.txt ... '
 
     file_name = 'input.txt'
-    file_name_new = 'input.txt.new'
-    maxinputline = 2000		! this is the maximum number of lines allowed in 'input.txt'
-    if(.NOT.Check_Exist(trim(file_name))) call exist_error(trim(file_name))
+    if(.NOT.Check_Exist(trim(file_name))) call exist_error(file_name)
 
   ! update NEW_SIMULATION
 
@@ -3434,53 +3430,35 @@ end subroutine auto_restoration
  !  print*,' file_name = ',file_name
 
     open(10,file=file_name)
-    open(90,file=file_name_new)
-    
-    !Be sure to be at the beginning of the file
+	!Be sure to be at the beginning of the file
     rewind(10)
   ! skip the lines for other inputs
-    eoif = 0	! flag to be triggered when end of input file is reached (input files can now have variable lengths)
-    do i=1,maxinputline	!line-1
-      read(10,'(A)') linestring
-      
-      trimstring = trim(adjustL(linestring))
-      trim7  = trimstring(1:7)
-      trim8  = trimstring(1:8)
-      trim9  = trimstring(1:9)
-      trim10 = trimstring(1:10)
-      
-      if(trim8 == 'NEW_SIMU') then
-          write(90,1005) 'NEW_SIMU   = ',NEW_SIMU
-      else if(trim9 == 'SIMU_TIME') then    
-	  write(90,1006) 'SIMU_TIME  = ',simu_time
-      else if(trim10 == 'START_TIME') then
-          write(90,1007) 'START_TIME = ',END_TIME
-	!    read(END_TIME(6:7),'(i2)') month1
-	! now the model only runs for one year and then stop
-      else if(trim8 == 'END_TIME') then
-          read(END_TIME(2:5),'(i4)') year1
-          year1 = year1 + 1
-          write(END_TIME(2:5),'(i4)') year1
-          write(90,1007) 'END_TIME   = ', END_TIME
-      else if(trim8 == 'SLR_CUMU') then
-          write(90,1008) 'SLR_CUMU   = ', slr_cumu
-      else if(trim7 == 'OLD_MHW') then	  
-          write(90,1008) 'OLD_MHW    = ', lev_mhw
-	  eoif = 1
-      else
-      	  write(90,'(A)') trim(linestring)
-      endif
-      if (eoif == 1) then
-          exit
-      endif
+
+    do i=1,line-1
+      read(10,*)
     enddo
 
-1005 FORMAT(A13,L)
-1006 FORMAT(A13,F0.4)
-1007 FORMAT(A13,A13)
-1008 FORMAT(A13,F0.4)
+    write(10,*) 'NEW_SIMU   = ',NEW_SIMU
+
+    write(10,*) 'SIMU_TIME  = ',simu_time
+
+    write(10,*) 'START_TIME = ',END_TIME
+
+    read(END_TIME(2:5),'(i4)') year1
+
+!    read(END_TIME(6:7),'(i2)') month1
+! now the model only runs for one year and then stop
+    year1 = year1 + 1
+    write(END_TIME(2:5),'(i4)') year1
+
+    write(10,*) 'END_TIME   = ', END_TIME
+
+    write(10,*) 'SLR_CUMU   = ', slr_cumu
+	
+	write(10,*) 'OLD_MHW    = ', lev_mhw
+
+
     close(10)
-    close(90)
 
     end subroutine update_input
 
