@@ -89,7 +89,7 @@
 				print*,' Model year not found in SLR rate file and SLR modulation is on...please check'
 				write(3,*)' Model year not found in SLR rate file and SLR modulation is on...please check'
 				print*,' Press any key to EXIT the program ... '
-				read*,
+				! HPC no shell ! pause
 				stop
 			end if
 		
@@ -1058,7 +1058,7 @@
         print*,' The output profile ID is out of range ..., please check '
         write(3,*)' The output profile ID is out of range ..., please check '
         print*,' Press any key to EXIT the program ... '
-        read*,
+        ! HPC no shell ! pause
         stop
     endif
 
@@ -1266,7 +1266,7 @@
         print*,' Number of dx profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of dx profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        read*,
+        ! HPC no shell ! pause
         stop
     endif
 	
@@ -1281,7 +1281,7 @@
 			print*,' Profile ID mismatch, dx. Please check '
 			write(3,*)' Profile ID mismatch, dx. Please check '
 			print*,' Press any key to EXIT the program ... '
-			read*,
+			! HPC no shell ! pause
 			stop
 		endif	
         dx_vals(1:nrng_dx,i)=rr_s(1+k:nrng_dx+k)
@@ -1366,7 +1366,7 @@
 			write(3,*)' Profile ID in grid is ', profile_id(k)
 			write(3,*)' Profile ID in file is ', rp_s(k)
 			print*,' Press any key to EXIT the program ... '
-			read*,
+			! HPC no shell ! pause
 			stop
 		endif
 	   
@@ -1378,7 +1378,7 @@
         print*,' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of barrier island edge profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        read*,
+        ! HPC no shell ! pause
         stop
     endif
 	
@@ -1478,7 +1478,7 @@
         print*,' First retreat rate is not the shoreline/zero  ..., please check '
         write(3,*)' First retreat rate is not the shoreline/zero  ..., please check '
         print*,' Press any key to EXIT the program ... '
-        read*,
+        ! HPC no shell ! pause
         stop
     endif
    
@@ -1494,7 +1494,7 @@
         print*,' Number of cross-shore retreat rate profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of cross-shore retreat rate profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        read*,
+        ! HPC no shell ! pause
         stop
     endif
 	
@@ -1509,7 +1509,7 @@
 			print*,' Profile ID mismatch, cross-shore retreat. Please check '
 			write(3,*)' Profile ID mismatch, cross-shore retreat. Please check '
 			print*,' Press any key to EXIT the program ... '
-			read*,
+			! HPC no shell ! pause
 			stop
 		endif	
         rtrt_grd(1:rtrt_ndep,i)=rr_s(1+k:rtrt_ndep+k)
@@ -1566,7 +1566,7 @@
 			print*,' Profile ID mismatch, bayside retreat. Please check '
 			write(3,*)' Profile ID mismatch, bayside retreat. Please check '
 			print*,' Press any key to EXIT the program ... '
-			read*,
+			! HPC no shell ! pause
 			stop
 		endif	
 			
@@ -1755,7 +1755,7 @@ if (rst_on.eq.1) then
 			write(3,*)' Profile ID in grid is ', profile_id(k)
 			write(3,*)' Profile ID in file is ', rp_s(k)
 			print*,' Press any key to EXIT the program ... '
-			read*,
+			! HPC no shell ! pause
 			stop
 		endif
 		
@@ -1786,7 +1786,7 @@ if (rst_on.eq.1) then
         print*,' Number of island grouping profiles is not equal to number of profiles ..., please check '
         write(3,*)' Number of island grouping profiles is not equal to number of profiles ..., please check '
         print*,' Press any key to EXIT the program ... '
-        read*,
+        ! HPC no shell ! pause
         stop
     endif
 endif
@@ -2191,7 +2191,7 @@ subroutine calc_crit_width
 			print*,' Restoration profile of zero width, profile ',profile_id(i),' Please check '
 			write(3,*)' Restoration profile of zero width, profile ',profile_id(i),' Please check '
 			print*,' Press any key to EXIT the program ... '
-			read*,
+			! HPC no shell ! pause
 			stop
 		endif
 	enddo
