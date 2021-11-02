@@ -41,7 +41,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/CMakeFiles)
 ###########################################################################
 #...Set the version string (used for libraries)
 SET(ICMBIDEM_VERSION_MAJOR 23)
-SET(ICMBIDEM_VERSION_MINOR  0)
+SET(ICMBIDEM_VERSION_MINOR  1)
 SET(ICMBIDEM_VERSION_PATCH  0)
 SET(ICMBIDEM_VERSION_STRING ${ICMBIDEM_VERSION_MAJOR}.${ICMBIDEM_VERSION_MINOR}.${ICMBIDEM_VERSION_PATCH})
 ###########################################################################
