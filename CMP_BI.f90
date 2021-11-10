@@ -3399,66 +3399,81 @@ end subroutine auto_restoration
     use global
     use input_util
     implicit none
-    integer :: i
+    integer :: i,eoif,maxinputline
     integer :: line,ierr,year1,month1
-    character(len=30) :: file_name,var_name
-
+    character(len=30) :: file_name,var_name,file_name_new
+    character(len=3000) :: linestring,trimstring
+    character(len=7) :: trim7
+    character(len=8) :: trim8
+    character(len=9) :: trim9
+    character(len=10) :: trim10
+    
 !---------- update input.txt ----------------------------
-
     print*,' Now updating input.txt ... '
     write(3,*) ' Now updating input.txt ... '
 
     file_name = 'input.txt'
-    if(.NOT.Check_Exist(trim(file_name))) call exist_error(file_name)
+    file_name_new = 'input.txt.new'
+    maxinputline = 2000		! this is the maximum number of lines allowed in 'input.txt'
+    if(.NOT.Check_Exist(trim(file_name))) call exist_error(trim(file_name))
 
   ! update NEW_SIMULATION
-
     simu_time = simu_time + time
-
   ! the update starts with NEW_SIMU
-
     CALL GET_LOGICAL_VAL(NEW_SIMU,FILE_NAME,'NEW_SIMU',line)
-
     if (NEW_SIMU) then
-
     NEW_SIMU = .false.
-
     endif
-
   ! update start time and end time
-
  !  print*,' file_name = ',file_name
 
     open(10,file=file_name)
-	!Be sure to be at the beginning of the file
+    open(90,file=file_name_new)
+
+    !Be sure to be at the beginning of the file
     rewind(10)
   ! skip the lines for other inputs
+    eoif = 0	! flag to be triggered when end of input file is reached (input files can now have variable lengths)
+    do i=1,maxinputline	!line-1
+      read(10,'(A)') linestring
 
-    do i=1,line-1
-      read(10,*)
+      trimstring = trim(adjustL(linestring))
+      trim7  = trimstring(1:7)
+      trim8  = trimstring(1:8)
+      trim9  = trimstring(1:9)
+      trim10 = trimstring(1:10)
+
+      if(trim8 == 'NEW_SIMU') then
+          write(90,1005) 'NEW_SIMU   = ',NEW_SIMU
+      else if(trim9 == 'SIMU_TIME') then    
+	  write(90,1006) 'SIMU_TIME  = ',simu_time
+      else if(trim10 == 'START_TIME') then
+          write(90,1007) 'START_TIME = ',END_TIME
+	!    read(END_TIME(6:7),'(i2)') month1
+	! now the model only runs for one year and then stop
+      else if(trim8 == 'END_TIME') then
+          read(END_TIME(2:5),'(i4)') year1
+          year1 = year1 + 1
+          write(END_TIME(2:5),'(i4)') year1
+          write(90,1007) 'END_TIME   = ', END_TIME
+      else if(trim8 == 'SLR_CUMU') then
+          write(90,1008) 'SLR_CUMU   = ', slr_cumu
+      else if(trim7 == 'OLD_MHW') then	  
+          write(90,1008) 'OLD_MHW    = ', lev_mhw
+	  eoif = 1
+      else
+      	  write(90,'(A)') trim(linestring)
+      endif
+      if (eoif == 1) then
+          exit
+      endif
     enddo
-
-    write(10,*) 'NEW_SIMU   = ',NEW_SIMU
-
-    write(10,*) 'SIMU_TIME  = ',simu_time
-
-    write(10,*) 'START_TIME = ',END_TIME
-
-    read(END_TIME(2:5),'(i4)') year1
-
-!    read(END_TIME(6:7),'(i2)') month1
-! now the model only runs for one year and then stop
-    year1 = year1 + 1
-    write(END_TIME(2:5),'(i4)') year1
-
-    write(10,*) 'END_TIME   = ', END_TIME
-
-    write(10,*) 'SLR_CUMU   = ', slr_cumu
-	
-	write(10,*) 'OLD_MHW    = ', lev_mhw
-
-
+1005 FORMAT(A13,L)
+1006 FORMAT(A13,F0.4)
+1007 FORMAT(A13,A13)
+1008 FORMAT(A13,F0.4)
     close(10)
+    close(90)
 
     end subroutine update_input
 
